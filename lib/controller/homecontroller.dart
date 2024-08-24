@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -8,6 +9,7 @@ class HomeController with ChangeNotifier {
   Map<String, dynamic> decodedData = {};
   NewsAppResponse? modelobj;
   bool isLoading = false;
+  List<String> categories = [];
 
   Future getData({String? searchQuery = "trending"}) async {
     print('Fetching data for: $searchQuery');
@@ -32,6 +34,25 @@ class HomeController with ChangeNotifier {
     } finally {
       isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future getCategories() async {
+    final url = Uri.parse(
+        "https://newsapi.org/v2/top-headlines?category=sports&apiKey=bdd9851bed20495885a38139c61f299c");
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // categories = List<String>.from(data['categories']);
+        notifyListeners();
+      } else {
+        print("Failed to load categories: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error: $e");
     }
   }
 }
